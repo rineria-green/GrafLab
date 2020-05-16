@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+<!--Введите угол: <input id="alpha">-->
+Введите координаты точeк: A = (<input id="Ax">, <input id="Ay">)
+B = (<input id="Bx">, <input id="By">)
+C = (<input id="Cx">, <input id="Cy">)
+<button onclick="knoposhka()" id="turn">Выбрать!</button>
+
+<canvas width="1800" height="1800" id="my-canv"></canvas>
+
+<script>
+
+    function randomColor(){
+        let color = Math.floor(Math.random() * Math.pow(256, 3)).toString(16);
+        while(color.length < 6) {
+            color = "0" + color;
+        }
+        return "#" + color;
+    }
+    function knoposhka() {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Очистка канвы
+        let A = {x: Number.parseInt(document.getElementById('Ax').value), y: Number.parseInt(document.getElementById('Ay').value)};
+        let B = {x: Number.parseInt(document.getElementById('Bx').value), y: Number.parseInt(document.getElementById('By').value)};
+        let C = {x: Number.parseInt(document.getElementById('Cx').value), y: Number.parseInt(document.getElementById('Cy').value)};
+        context.beginPath();
+        context.moveTo(A.x, A.y);
+        context.lineTo(B.x, B.y);
+        context.lineTo(C.x, C.y);
+        context.lineWidth = 2;
+        context.strokeStyle = "#449999";
+        context.stroke();
+
+        let n = 3;
+        let dt = 1/(n*0.5);
+        let ab,bc,ac,ad,ae,de,q;
+        let T1 = {};
+        let T2 = {};
+        let T = {};
+        let S = A;
+        for (let t = 0; t<=1; t=t+0.05){
+            ac = B.x - A.x;
+            bc = B.y - A.y;
+            ab = Math.sqrt(ac*ac + bc*bc);
+            ad = ab*t;
+            q = ad/ab; // отношение гипотенуз
+            ae = ac*q;
+            de = bc*q;
+            T1 = {x: A.x + ae, y: A.y + de}; // координаты точки на первой прямой
+
+            ac = C.x - B.x;
+            bc = C.y - B.y;
+            ab = Math.sqrt(ac*ac + bc*bc);
+            ad = ab*t;
+            q = ad/ab; // отношение гипотенуз
+            ae = ac*q;
+            de = bc*q;
+            T2 = {x: B.x + ae, y: B.y + de}; // координаты точки на второй прямой
+            context.beginPath();
+            context.moveTo(T1.x, T1.y);
+            context.lineTo(T2.x, T2.y);
+            context.lineWidth = 2;
+            context.strokeStyle = "#449999";
+            context.stroke();
+            ac = T2.x - T1.x;
+            bc = T2.y - T1.y;
+            ab = Math.sqrt(ac*ac + bc*bc);
+            ad = ab*t;
+            q = ad/ab; // отношение гипотенуз
+            ae = ac*q;
+            de = bc*q;
+            T = {x: T1.x + ae, y: T1.y + de}; // координаты точки
+            context.beginPath();
+            context.moveTo(S.x, S.y);
+            context.lineTo(T.x, T.y);
+            context.lineWidth = 7;
+            context.strokeStyle = "#55ffaa";
+            context.stroke(); //рисование линий
+            S = T;
+        }
+
+    }
+
+    let canvas = document.getElementById("my-canv");
+    let context = canvas.getContext("2d");
+
+</script>
+</body>
+</html>
+
+

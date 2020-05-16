@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+<button onclick="knoposhka1()" id="turn">ТЫК</button>
+<button onclick="knoposhka2()" id="turn2">ТЫК</button>
+<br>
+<canvas width="800" height="800" id="my-canv"></canvas>
+
+<script>
+    function randomColor(){
+        let color = Math.floor(Math.random() * Math.pow(256, 3)).toString(16);
+        while(color.length < 6) {
+            color = "0" + color;
+        }
+        return "#" + color;
+    }
+
+    function drawLine(a,b,color){
+        context.beginPath();
+        context.moveTo(a.x, a.y);
+        context.lineTo(b.x, b.y);
+        context.lineWidth = 3;
+        context.strokeStyle = color;
+        context.stroke(); //рисование линий
+        let c = {a: a, b: b};
+        return (c);
+    }
+
+    function drawSquare(){
+        context.beginPath();
+        context.moveTo(A.x, A.y);
+        context.lineTo(B.x, B.y);
+        context.lineTo(C.x, C.y);
+        context.lineTo(D.x, D.y);
+        context.lineTo(A.x, A.y);
+        context.lineWidth = 6;
+        //context.strokeStyle = #aaffaa;
+        context.strokeStyle = randomColor();
+        //context.lineCap = "round";
+        context.stroke(); //рисование линий
+    }
+
+    function getKod(){
+        let kod = [];
+        let kod_a = [];
+        let kod_b = [];
+        for (let i=0; i<n; i++){
+            kod_a = [];
+            kod_b = [];
+            if (Lines[i].a.x<A.x) kod_a[0]=1; else kod_a[0]=0; //Л
+            if (Lines[i].a.x>C.x) kod_a[1]=1; else kod_a[1]=0; //П
+            if (Lines[i].a.y<A.y) kod_a[2]=1; else kod_a[2]=0; //В
+            if (Lines[i].a.y>C.y) kod_a[3]=1; else kod_a[3]=0; //Н
+            (Lines[i].b.x<A.x) ? kod_b[0]=1 : kod_b[0]=0; //Л
+            (Lines[i].b.x>C.x) ? kod_b[1]=1 : kod_b[1]=0; //П
+            (Lines[i].b.y<A.y) ? kod_b[2]=1 : kod_b[2]=0; //В
+            (Lines[i].b.y>C.y) ? kod_b[3]=1 : kod_b[3]=0; //Н
+            kod[i] = [];
+            kod[i][0] = kod_a;
+            kod[i][1] = kod_b;
+
+        }
+        return(kod);
+    }
+    function knoposhka2(){
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Очистка канвы
+        let kod = getKod();
+        for (let i = 0; i < n; i++) {
+            if ((kod[i][0][0] == 0) && (kod[i][0][1] == 0) && (kod[i][0][2] == 0) && (kod[i][0][3] == 0) &&
+                (kod[i][1][0] == 0) && (kod[i][1][1] == 0) && (kod[i][1][2] == 0) && (kod[i][1][3] == 0)) {
+                drawLine(Lines[i].a, Lines[i].b, "#114455");
+            }
+        }
+        drawSquare();
+    }
+
+    function knoposhka1() {
+        for (let j=0; j<3; j++) {
+            let kod = getKod();
+            let k = [];
+            let x = 0;
+            let y = 0;
+            let t = 0;
+            let l = 0;
+
+            for (let i = 0; i < n; i++) {
+                k = [];
+                x = 0;
+                y = 0;
+                t = 0;
+                l = 0;
+                if ((kod[i][0][0] == 0) && (kod[i][0][1] == 0) && (kod[i][0][2] == 0) && (kod[i][0][3] == 0) &&
+                    (kod[i][1][0] == 0) && (kod[i][1][1] == 0) && (kod[i][1][2] == 0) && (kod[i][1][3] == 0)) {
+                    context.beginPath();
+                    context.moveTo(Lines[i].a.x, Lines[i].a.y);
+                    context.lineTo(Lines[i].b.x, Lines[i].b.y);
+                    context.lineWidth = 4;
+                    context.strokeStyle = "#aaff55";
+                    context.stroke(); //рисование линий
+                }
+                if (((kod[i][0][0] == 0) || (kod[i][1][0] == 0)) && ((kod[i][0][1] == 0) || (kod[i][1][1] == 0)) &&
+                    ((kod[i][0][2] == 0) || (kod[i][1][2] == 0)) && ((kod[i][0][3] == 0) || (kod[i][1][3] == 0))) {
+
+                    if ((kod[i][0][0] == 0) && (kod[i][0][1] == 0) && (kod[i][0][2] == 0) && (kod[i][0][3] == 0)) {
+                        k = kod[i][0];
+                        kod[i][0] = kod[i][1];
+                        kod[i][1] = k;
+                        k = Lines[i].a;
+                        Lines[i].a = Lines[i].b;
+                        Lines[i].b = k;
+                    }
+
+                    if (kod[i][0][0] != 0) {
+                        x = A.x;
+                        t = (x - Lines[i].a.x) / (Lines[i].b.x - Lines[i].a.x);
+                        y = Lines[i].a.y + (Lines[i].b.y - Lines[i].a.y) * t;
+                        l = {x: x, y: y};
+                        drawLine(Lines[i].a, l, "#ff7755");
+                        drawLine(l, Lines[i].b, "#aaff55");
+                        Lines[i].a.x = x;
+                        Lines[i].a.y = y;
+                    }
+                    if (kod[i][0][1] != 0) {
+                        x = C.x;
+                        t = (x - Lines[i].a.x) / (Lines[i].b.x - Lines[i].a.x);
+                        y = Lines[i].a.y + (Lines[i].b.y - Lines[i].a.y) * t;
+                        l = {x: x, y: y};
+                        drawLine(Lines[i].a, l, "#ff7755");
+                        drawLine(l, Lines[i].b, "#aaff55");
+                        Lines[i].a.x = x;
+                        Lines[i].a.y = y;
+                    }
+                    if (kod[i][0][2] != 0) {
+                        y = A.y;
+                        t = (y - Lines[i].a.y) / (Lines[i].b.y - Lines[i].a.y);
+                        x = Lines[i].a.x + (Lines[i].b.x - Lines[i].a.x) * t;
+                        l = {x: x, y: y};
+                        drawLine(Lines[i].a, l, "#ff7755");
+                        drawLine(l, Lines[i].b, "#aaff55");
+                        Lines[i].a.x = x;
+                        Lines[i].a.y = y;
+                    }
+                    if (kod[i][0][3] != 0) {
+                        y = C.y;
+                        t = (y - Lines[i].a.y) / (Lines[i].b.y - Lines[i].a.y);
+                        x = Lines[i].a.x + (Lines[i].b.x - Lines[i].a.x) * t;
+                        l = {x: x, y: y};
+                        drawLine(Lines[i].a, l, "#ff7755");
+                        drawLine(l, Lines[i].b, "#aaff55");
+                        Lines[i].a.x = x;
+                        Lines[i].a.y = y;
+                    }
+                }
+                else {
+                    drawLine(Lines[i].a, Lines[i].b, "#ff7755");
+                }
+            }
+        }
+    }
+
+    let canvas = document.getElementById("my-canv");
+    let context = canvas.getContext("2d");
+    let n = 300;
+    let A = {x: 100, y: 100};
+    let B = {x: 100, y: 500};
+    let C = {x: 500, y: 500};
+    let D = {x: 500, y: 100};
+    drawSquare();
+    let Lines = [];
+    let line_a;
+    let line_b;
+    for (let i = 0; i<n; i++) {
+        line_a = {x: Math.floor(Math.random()*600), y: Math.floor(Math.random()*600)};
+        line_b = {x: Math.floor(Math.random()*600), y: Math.floor(Math.random()*600)};
+        Lines[i] = drawLine(line_a,line_b,"#114455");
+    }
+
+</script>
+</body>
+</html>
+
+

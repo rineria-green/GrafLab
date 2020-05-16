@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+<body>
+
+<button onclick="knoposhka()" id="turn">ТЫК</button>
+<br>
+<canvas width="800" height="800" id="my-canv"></canvas>
+
+<script>
+    function randomColor(){
+        let color = Math.floor(Math.random() * Math.pow(256, 3)).toString(16);
+        while(color.length < 6) {
+            color = "0" + color;
+        }
+        return "#" + color;
+    }
+
+    function drawSquare(A,B,C,D,color){
+        context.beginPath();
+        context.moveTo(A.x, A.y);
+        context.lineTo(B.x, B.y);
+        context.lineTo(C.x, C.y);
+        context.lineTo(D.x, D.y);
+        context.lineTo(A.x, A.y);
+        context.lineWidth = 1;
+        //context.strokeStyle = #aaffaa;
+        context.strokeStyle = color;
+        //context.lineCap = "round";
+        context.stroke(); //рисование линий
+    }
+
+    function drawTriangle(a,b,c,color){
+        context.beginPath();
+        context.moveTo(a.x, a.y);
+        context.lineTo(b.x, b.y);
+        context.lineTo(c.x, c.y);
+        context.lineTo(a.x, a.y);
+        context.lineWidth = 1;
+        context.strokeStyle = color;
+        context.stroke(); //рисование линий
+    }
+
+    function drawLine(flag1, flag2, color){
+        context.beginPath();
+        context.moveTo(flag1[0], flag1[1]);
+        context.lineTo(flag2[0], flag2[1]);
+        context.lineWidth = 2;
+        context.strokeStyle = color;
+        context.stroke(); //рисование линий
+    }
+
+    function sort(e){
+        let n = e.length;
+        let t;
+        for (let i = 0; i < n-1; i++) {
+            for (var j = 0; j < n-1-i; j++) {
+                if (e[j+1][0].x < e[j][0].x) {
+                    t = e[j+1]; e[j+1] = e[j]; e[j] = t;
+                }
+            }
+        }
+        return e;
+    }
+
+    async function knoposhka(){
+        await work();
+    }
+
+    function work() {
+        let flags = [];
+        let flag = [];
+        for (let y = 0; y < 600; y+=3){
+            flags = [];
+            for (let i = 0; i < Edges.length; i++){
+                flag = [];
+                let p1;
+                let x;
+                let f = true;
+                p1 = (y-Edges[i][0].y)/(Edges[i][1].y - Edges[i][0].y);
+                x = p1*(Edges[i][1].x - Edges[i][0].x) + Edges[i][0].x;
+                if ((p1 >= -0) && (p1 <= 1)){
+                    for (let k = 0; k < flags.length; k++){
+                        if(flags[k][2] == Edges[i][2]){
+                            f = !f;
+                        }
+                    }
+                    flag[0] = x;
+                    flag[1] = y;
+                    flag[2] = Edges[i][2];
+                    flag[3] = f;
+                    flags.push(flag);
+                }
+            }
+
+            flags.sort(function (a, b) {
+                return a[0] - b[0];
+            });
+
+            for(let h=0; h < n; h++){
+                f = true;
+                for (let k = 0; k < flags.length; k++){
+                    if(flags[k][2] == h){
+                        flags[k][3] = f;
+                        f = !f;
+                    }
+                }
+            }
+            if(flags.length % 2 != 0){
+                for (let k = 0; k < flags.length; k++){
+                    for (let l = k+1; l < flags.length; l++){
+                        if(flags[k][0] == flags[l][0]){
+                            flags.splice(l, 1);
+                        }
+                    }
+                }
+            }
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Очистка канвы
+            flags.sort(function (a, b) {
+                return a[0] - b[0];
+            });
+
+            for(let h=0; h < n; h++){
+                f = true;
+                for (let k = 0; k < flags.length; k++){
+                    if(flags[k][2] == h){
+                        flags[k][3] = f;
+                        f = !f;
+                    }
+                }
+            }
+
+            let opens = [];
+            for (let k = 0; k < flags.length-1; k++){
+                if(flags[k][3]){
+                    opens.push(flags[k][2]);
+                }else{
+                    opens.splice(opens.indexOf(flags[k][2]), 1);
+                }
+                if(opens.length > 0){
+                    let max = Math.max.apply(Math, opens);
+                    setTimeout(drawLine, 20 * y, flags[k], flags[k+1], Polygons[max]);
+
+                }
+            }
+
+        }
+    }
+
+    let canvas = document.getElementById("my-canv");
+    let context = canvas.getContext("2d");
+    let n = 100;
+    let Edges = [];
+    for (let i = 0;i<((n-1)*3+4);i++) {
+        Edges[i] = [];
+    }
+    let Polygons = [];
+
+    Square_a = {x: Math.floor(Math.random()*600), y: Math.floor(Math.random()*600)};
+    if ((Square_a.x<300) && (Square_a.y<300)){
+        Square_b = {x: Square_a.x + 250, y: Square_a.y};
+        Square_c = {x: Square_a.x + 250, y: Square_a.y + 250};
+        Square_d = {x: Square_a.x, y: Square_a.y + 250};
+    }
+    if ((Square_a.x<300) && (Square_a.y>300)){
+        Square_b = {x: Square_a.x, y: Square_a.y - 250};
+        Square_c = {x: Square_a.x + 250, y: Square_a.y - 250};
+        Square_d = {x: Square_a.x + 250, y: Square_a.y};
+    }
+    if ((Square_a.x>300) && (Square_a.y<300)){
+        Square_b = {x: Square_a.x, y: Square_a.y + 250};
+        Square_c = {x: Square_a.x - 250, y: Square_a.y + 250};
+        Square_d = {x: Square_a.x - 250, y: Square_a.y};
+    }
+    if ((Square_a.x>300) && (Square_a.y>300)){
+        Square_b = {x: Square_a.x - 250, y: Square_a.y};
+        Square_c = {x: Square_a.x - 250, y: Square_a.y - 250};
+        Square_d = {x: Square_a.x, y: Square_a.y - 250};
+    }
+
+    if (Square_a.x < Square_b.x) { Edges[0][0] = Square_a; Edges[0][1] = Square_b; }
+    else{ Edges[0][0] = Square_b; Edges[0][1] = Square_a; }
+    Edges[0][2] = 0;
+    if (Square_b.x < Square_c.x) { Edges[1][0] = Square_b; Edges[1][1] = Square_c; }
+    else{ Edges[1][0] = Square_c; Edges[1][1] = Square_b; }
+    Edges[1][2] = 0;
+    if (Square_c.x < Square_d.x) { Edges[2][0] = Square_c; Edges[2][1] = Square_d; }
+    else{ Edges[2][0] = Square_d; Edges[2][1] = Square_c; }
+    Edges[2][2] = 0;
+    if (Square_d.x < Square_a.x) { Edges[3][0] = Square_d; Edges[3][1] = Square_a; }
+    else{ Edges[3][0] = Square_a; Edges[3][1] = Square_d; }
+    Edges[3][2] = 0;
+    Polygons[0] = randomColor();
+    drawSquare(Square_a, Square_b, Square_c, Square_d, Polygons[0]);
+    let j = 4;
+    for (let i = 1; i<n; i++) {
+        Triangle_a = {x: Math.floor(Math.random()*300), y: Math.floor(Math.random()*300)};
+        Triangle_b = {x: Math.floor(Math.random()*300), y: Math.floor(Math.random()*300)+300};
+        Triangle_c = {x: Math.floor(Math.random()*300)+300, y: Math.floor(Math.random()*300)+300};
+
+        if (Triangle_a.x < Triangle_b.x) { Edges[j][0] = Triangle_a; Edges[j][1] = Triangle_b; }
+        else{ Edges[j][0] = Triangle_b; Edges[j][1] = Triangle_a; }
+        Edges[j][2] = i; j++;
+        if (Triangle_b.x < Triangle_c.x) { Edges[j][0] = Triangle_b; Edges[j][1] = Triangle_c; }
+        else{ Edges[j][0] = Triangle_c; Edges[j][1] = Triangle_b; }
+        Edges[j][2] = i; j++;
+        if (Triangle_c.x < Triangle_a.x) { Edges[j][0] = Triangle_c; Edges[j][1] = Triangle_a; }
+        else{ Edges[j][0] = Triangle_a; Edges[j][1] = Triangle_c; }
+        Edges[j][2] = i; j++;
+        Polygons[i] = randomColor();
+        drawTriangle(Triangle_a, Triangle_b, Triangle_c, Polygons[i]);
+    }
+    i = 0; j = 0;
+    Edges = sort(Edges);
+</script>
+</body>
+</html>
+
+
